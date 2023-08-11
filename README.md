@@ -5,14 +5,14 @@ by applications which uses libzypp.
 If needed the plugin creates the file */run/reboot-needed* which indicates
 for other applications, that a reboot is needed.
 
-There are diffenent boot levels which will be stored in the */run/reboot-needed* as an normal
+There are different boot levels which will be stored in the */run/reboot-needed* as an normal
 ASCII string:
 
 * **reboot** Hard reboot
 * **kexec** Booting a new kernel without initializing hardware and without using any bootloader like Grub2.
 * **soft-reboot** Soft reboot done by E.G. *systemctl soft-reboot*
 
-## Evaluting the needed Bootlevel
+## Evaluating the needed Boot-Level
 
 The plugin is getting a list of fresh installed/updated packages. The plugin
 checks for each package if a reboot is needed:
@@ -106,4 +106,28 @@ checks for each package if a reboot is needed:
 
    ```
 
-2.
+2.If an fresh installed/updated package is not defined in */etc/zypp/zypp-boot-plugin.conf* the provides dependency
+  of this package will be checked for the tag *installhint(reboot-needed)*.
+  If this dependency has been defined, a hard reboot will be done.
+
+  Additional, the kind of reboot can also be set by E.G. *installhint(reboot-needed) = kexec* which is "weaker" than
+  a hard reboot.
+
+
+The result will be a list of packages together with the kind of needed boot-level. This list is the base of evaluating the correct entry
+in */run/reboot-needed* where the "strongest" boot process in the list will be taken:
+
+1. reboot
+2. kexec
+3. soft-boot
+4. userland (if needed)
+
+## Open Questions
+
+*/run/reboot-needed* will be generated only if *reboot*, *kexec* or *soft-boot* is needed. What should happen if there is an
+*userland* entry only ?
+
+
+
+
+
