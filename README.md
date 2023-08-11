@@ -14,3 +14,96 @@ ASCII string:
 
 ## Evaluting the needed Bootlevel
 
+The plugin is getting a list of fresh installed/updated packages. The plugin
+checks for each package if a reboot is needed:
+
+1. The plugin checks if the installed/updated package is in the package list defined in */etc/zypp/zypp-boot-plugin.conf*:
+
+   ```
+   ## Configuration file for zypp-boot-plugin plugin.
+   ## /etc/zypp/zypp-boot-plugin.conf
+   ##
+   ## This configuration file defines packages for which a reboot
+   ## is needed after they have been installed/updated.
+   
+   [main]
+   
+   ##
+   ## Packages for which a hard reboot is needed after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages whith name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   reboot = grub2, glibc
+   
+   ##
+   ## Packages for which a kexec call is needed at least after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages whith name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   kexec = multiversion(kernel)
+   
+   ##
+   ## Packages for which a soft reboot is needed at least after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages whith name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   soft-reboot = libopenssl
+   
+   ##
+   ## Packages for which a userland restart is needed at least after they have been
+   ## installed or updated and are running in an userland environment.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages whith name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   userland = vi
+
+   ```
+
+2.
