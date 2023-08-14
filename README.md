@@ -83,26 +83,7 @@ checks for each package if a reboot is needed:
    ## Default value:
    ##	empty
    ##
-   soft-reboot = libopenssl
-   
-   ##
-   ## Packages for which a userland restart is needed at least after they have been
-   ## installed or updated and are running in an userland environment.
-   ##
-   ## Packages are selected either by name, or by provides. In the later case
-   ## the string must start with "provides:" immediately followed by the capability.
-   ##
-   ## Example:
-   ##	foo				- just packages whith name 'foo'
-   ##	provides:bar                    - all packages providing 'bar'
-   ##
-   ## Valid values:
-   ##	Comma separated list of packages.
-   ##
-   ## Default value:
-   ##	empty
-   ##
-   userland = vi
+   soft-reboot = libopenssl  
 
    ```
 
@@ -120,12 +101,6 @@ in */run/reboot-needed* where the "strongest" boot process in the list will be t
 1. reboot
 2. kexec
 3. soft-boot
-4. userland (if needed)
-
-## Open Questions
-
-*/run/reboot-needed* will be generated only if *reboot*, *kexec* or *soft-boot* is needed. What should happen if there is an
-*userland* entry only ?
 
 
 
