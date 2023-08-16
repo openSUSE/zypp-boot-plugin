@@ -104,5 +104,21 @@ in */run/reboot-needed* where the "strongest" boot process in the list will be t
 
 
 
+## Building plugin
 
+#### Prerequires:
+* meson
+* libeconf
+
+#### Build:
+```
+# meson <builddir>
+# cd <builddir>
+# meson compile
+```
+
+#### Installation:
+```
+# meson install
+```
 
