@@ -63,56 +63,56 @@ public:
     }
 
     Message plugin_begin(const Message& m) override {
-	cerr << "INFO:" << "PLUGINBEGIN" << endl;
+	cerr << "INFO:(boot-plugin):" << "PLUGINBEGIN" << endl;
 	userdata = get_userdata(m);
 
 	return ack();
     }
     Message plugin_end(const Message& m) override {
 	UNUSED(m);
-	cerr << "INFO:" << "PLUGINEND" << endl;
+	cerr << "INFO:(boot-plugin):" << "PLUGINEND" << endl;
 	return ack();
     }
     Message commit_begin(const Message& msg) override {
-	cerr << "INFO:" << "COMMITBEGIN" << endl;
+	cerr << "INFO:(boot-plugin):" << "COMMITBEGIN" << endl;
 
 	set<string> solvables = get_solvables(msg, Phase::BEFORE);
-	cerr << "DEBUG:" << "solvables: " << solvables << endl;
+	cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
 
 	bool found, important;
 	match_solvables(solvables, found, important);
-	cerr << "INFO:" << "found: " << found << ", important: " << important << endl;
+	cerr << "INFO:(boot-plugin):" << "found: " << found << ", important: " << important << endl;
 
 	if (found || important) {
 	    userdata["important"] = important ? "yes" : "no";
 
-	    cerr << "INFO:" << "creating pre snapshot" << endl;
+	    cerr << "INFO:(boot-plugin):" << "creating pre snapshot" << endl;
 	    // creating here FIXME
-	    cerr << "DEBUG:" << "created pre snapshot " << endl;
+	    cerr << "DEBUG:(boot-plugin):" << "created pre snapshot " << endl;
 	}
 
 	return ack();
     }
 
     Message commit_end(const Message& msg) override {
-	cerr << "INFO:" << "COMMITEND" << endl;
+	cerr << "INFO:(boot-plugin):" << "COMMITEND" << endl;
 
         set<string> solvables = get_solvables(msg, Phase::AFTER);
-        cerr << "DEBUG:" << "solvables: " << solvables << endl;
+        cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
 
         bool found, important;
         match_solvables(solvables, found, important);
-        cerr << "INFO:" << "found: " << found << ", important: " << important << endl;
+        cerr << "INFO:(boot-plugin):" << "found: " << found << ", important: " << important << endl;
 
         if (found || important) {
    	   userdata["important"] = important ? "yes" : "no";
 
-  	   cerr << "INFO:" << "setting snapshot data" << endl;
- 	   cerr << "INFO:" << "creating post snapshot" << endl;
+  	   cerr << "INFO:(boot-plugin):" << "setting snapshot data" << endl;
+ 	   cerr << "INFO:(boot-plugin):" << "creating post snapshot" << endl;
  	   // FIXME
 	}
 	else {
- 	   cerr << "INFO:" << "deleting pre snapshot" << endl;
+ 	   cerr << "INFO:(boot-plugin):" << "deleting pre snapshot" << endl;
 	   // FIXME
 	}
 	return ack();
@@ -162,7 +162,7 @@ ZyppBootPlugin::get_userdata(const Message& msg)
 	    }
 	    else
 	    {
-		cerr << "ERROR:" << "invalid userdata: expecting comma separated key=value pairs" << endl;
+		cerr << "ERROR:(boot-plugin):" << "invalid userdata: expecting comma separated key=value pairs" << endl;
 	    }
 	}
     }
@@ -175,7 +175,7 @@ object_get(json_object* obj, const char* name)
 {
     json_object * result;
     if (!json_object_object_get_ex(obj, name, &result)) {
-	cerr << "ERROR:" << '"' << name << "\" not found" << endl;
+	cerr << "ERROR:(boot-plugin):" << '"' << name << "\" not found" << endl;
 	return NULL;
     }
     return result;
@@ -190,7 +190,7 @@ ZyppBootPlugin::get_solvables(const Message& msg, Phase phase)
     json_object * zypp = json_tokener_parse_ex(tok, msg.body.c_str(), msg.body.size());
     json_tokener_error jerr = json_tokener_get_error(tok);
     if (jerr != json_tokener_success) {
-	cerr << "ERROR:" << "parsing zypp JSON failed: "
+	cerr << "ERROR:(boot-plugin):" << "parsing zypp JSON failed: "
 			 << json_tokener_error_desc(jerr) << endl;
 	return result;
     }
@@ -211,17 +211,17 @@ ZyppBootPlugin::get_solvables(const Message& msg, Phase phase)
 	    if (have_type && (phase == Phase::BEFORE || have_stage)) {
 		json_object * solvable = object_get(step, "solvable");
 		if (!solvable) {
-		    cerr << "ERROR:" << "in item #" << i << endl;
+		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
 		    continue;
 		}
 		json_object * name = object_get(solvable, "n");
 		if (!name) {
-		    cerr << "ERROR:" << "in item #" << i << endl;
+		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
 		    continue;
 		}
 		if (json_object_get_type(name) != json_type_string) {
-		    cerr << "ERROR:" << "\"n\" is not a string" << endl;
-		    cerr << "ERROR:" << "in item #" << i << endl;
+		    cerr << "ERROR:(boot-plugin):" << "\"n\" is not a string" << endl;
+		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
 		    continue;
 		}
 		else {
@@ -258,7 +258,7 @@ int
 main()
 {
     if (getenv("DISABLE_ZYPP_BOOT_PLUGIN") != nullptr) {
-	cerr << "INFO:" << "$DISABLE_ZYPP_BOOT_PLUGIN is set - disabling boot-plugin" << endl;
+	cerr << "INFO:(boot-plugin):" << "$DISABLE_ZYPP_BOOT_PLUGIN is set - disabling boot-plugin" << endl;
 	ZyppCommitPlugin plugin;
 	return plugin.main();
     }

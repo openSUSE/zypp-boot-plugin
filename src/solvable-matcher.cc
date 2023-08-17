@@ -37,7 +37,7 @@ std::ostream& SolvableMatcher::log = std::cerr;
 bool
 SolvableMatcher::match(const string& solvable) const
 {
-    log << "DEBUG:"
+    log << "DEBUG:(boot-plugin):"
 	<< "match? " << solvable
 	<< " by " << ((kind == Kind::GLOB)? "GLOB '": "REGEX '")
 	<< pattern << '\'' << endl;
@@ -60,7 +60,7 @@ SolvableMatcher::match(const string& solvable) const
 	    throw std::runtime_error(string("Regex compilation error: ") + e.what());
 	}
     }
-    log << "DEBUG:" << "-> " << res << endl;
+    log << "DEBUG:(boot-plugin):" << "-> " << res << endl;
     return res;
 }
 
@@ -70,7 +70,7 @@ SolvableMatcher::load_config(const string& cfg_filename)
 {
     vector<SolvableMatcher> result;
 
-    log << "DEBUG:" << "parsing " << cfg_filename << endl;
+    log << "DEBUG:(boot-plugin):" << "parsing " << cfg_filename << endl;
 #if 0    
     XmlFile config(cfg_filename);
     const xmlNode* root = config.getRootElement();
@@ -92,7 +92,7 @@ SolvableMatcher::load_config(const string& cfg_filename)
 	    kind = Kind::REGEX;
 	}
 	else {
-	    log << "ERROR:" << "Unknown match attribute '" << kind_s << "', disregarding pattern '"<< pattern << "'" << endl;
+	    log << "ERROR:(boot-plugin):" << "Unknown match attribute '" << kind_s << "', disregarding pattern '"<< pattern << "'" << endl;
 	    continue;
 	}
 
