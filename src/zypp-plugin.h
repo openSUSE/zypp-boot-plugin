@@ -8,7 +8,7 @@
 class ZyppPlugin {
 public:
     // Plugin message aka frame
-    // https://doc.opensuse.org/projects/libzypp/SLE12SP2/zypp-plugins.html
+    // https://doc.opensuse.org/projects/libzypp/HEAD/zypp-plugins.html
     struct Message {
 	std::string command;
 	std::map<std::string, std::string> headers;

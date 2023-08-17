@@ -63,41 +63,22 @@ public:
     }
 
     Message plugin_begin(const Message& m) override {
-	cerr << "INFO:(boot-plugin):" << "PLUGINBEGIN" << endl;
-	userdata = get_userdata(m);
-
+	cerr << "INFO:(boot-plugin):" << m.command << endl;
 	return ack();
     }
     Message plugin_end(const Message& m) override {
-	UNUSED(m);
-	cerr << "INFO:(boot-plugin):" << "PLUGINEND" << endl;
+	cerr << "INFO:(boot-plugin):" << m.command << endl;
 	return ack();
     }
-    Message commit_begin(const Message& msg) override {
-	cerr << "INFO:(boot-plugin):" << "COMMITBEGIN" << endl;
-
-	set<string> solvables = get_solvables(msg, Phase::BEFORE);
-	cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
-
-	bool found, important;
-	match_solvables(solvables, found, important);
-	cerr << "INFO:(boot-plugin):" << "found: " << found << ", important: " << important << endl;
-
-	if (found || important) {
-	    userdata["important"] = important ? "yes" : "no";
-
-	    cerr << "INFO:(boot-plugin):" << "creating pre snapshot" << endl;
-	    // creating here FIXME
-	    cerr << "DEBUG:(boot-plugin):" << "created pre snapshot " << endl;
-	}
-
+    Message commit_begin(const Message& m) override {
+	cerr << "INFO:(boot-plugin):" << m.command << endl;
 	return ack();
     }
 
     Message commit_end(const Message& msg) override {
-	cerr << "INFO:(boot-plugin):" << "COMMITEND" << endl;
+	cerr << "INFO:(boot-plugin):" << msg.command << endl;
 
-        set<string> solvables = get_solvables(msg, Phase::AFTER);
+        set<string> solvables = get_solvables(msg);
         cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
 
         bool found, important;
@@ -105,69 +86,24 @@ public:
         cerr << "INFO:(boot-plugin):" << "found: " << found << ", important: " << important << endl;
 
         if (found || important) {
-   	   userdata["important"] = important ? "yes" : "no";
-
-  	   cerr << "INFO:(boot-plugin):" << "setting snapshot data" << endl;
- 	   cerr << "INFO:(boot-plugin):" << "creating post snapshot" << endl;
+	   cerr << "INFO:(boot-plugin):" << "setting boot" << endl;
  	   // FIXME
 	}
-	else {
- 	   cerr << "INFO:(boot-plugin):" << "deleting pre snapshot" << endl;
-	   // FIXME
-	}
+
 	return ack();
     }
 
 private:
-    static const string cleanup_algorithm;
-
-    map<string, string> userdata;
-
     vector<SolvableMatcher> solvable_matchers;
 
-    map<string, string> get_userdata(const Message&);
+    enum class Boot { HARD, KEXEC, SOFT };
 
-    enum class Phase { BEFORE, AFTER };
-
-    set<string> get_solvables(const Message&, Phase phase);
+    set<string> get_solvables(const Message&);
 
     void match_solvables(const set<string>& solvables, bool& found, bool& important);
 
-    unsigned int create_pre_snapshot(string config_name, string description, string cleanup, map<string, string> userdata);
 };
 
-
-const string ZyppBootPlugin::cleanup_algorithm = "number";
-
-
-map<string, string>
-ZyppBootPlugin::get_userdata(const Message& msg)
-{
-    map<string, string> result;
-    auto it = msg.headers.find("userdata");
-    if (it != msg.headers.end()) {
-	const string& userdata_s = it->second;
-	vector<string> key_values;
-	boost::split(key_values, userdata_s, boost::is_any_of(","));
-	for (auto kv : key_values)
-	{
-	    static const regex rx_keyval("([^=]*)=(.+)", regex::extended);
-	    smatch match;
-
-	    if (regex_match(kv, match, rx_keyval))
-	    {
-		string key = boost::trim_copy(match[1].str());
-		string value = boost::trim_copy(match[2].str());
-		result[key] = value;
-	    }
-	    else
-	    {
-		cerr << "ERROR:(boot-plugin):" << "invalid userdata: expecting comma separated key=value pairs" << endl;
-	    }
-	}
-    }
-    return result;
-}
 
 static
 json_object*
@@ -182,8 +118,9 @@ object_get(json_object* obj, const char* name)
 }
 
 set<string>
-ZyppBootPlugin::get_solvables(const Message& msg, Phase phase)
+ZyppBootPlugin::get_solvables(const Message& msg)
 {
+    cerr << "DEBUG:(boot-plugin):msg.body:" << msg.body << endl;
     set<string> result;
 
     json_tokener * tok = json_tokener_new();
@@ -206,28 +143,47 @@ ZyppBootPlugin::get_solvables(const Message& msg, Phase phase)
 	size_t i, len = json_object_array_length(steps);
 	for (i = 0; i < len; ++i) {
 	    json_object * step = json_object_array_get_idx(steps, i);
-	    bool have_type = json_object_object_get_ex(step, "type", NULL);
-	    bool have_stage = json_object_object_get_ex(step, "stage", NULL);
-	    if (have_type && (phase == Phase::BEFORE || have_stage)) {
-		json_object * solvable = object_get(step, "solvable");
-		if (!solvable) {
-		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
-		    continue;
-		}
-		json_object * name = object_get(solvable, "n");
-		if (!name) {
-		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
-		    continue;
-		}
-		if (json_object_get_type(name) != json_type_string) {
-		    cerr << "ERROR:(boot-plugin):" << "\"n\" is not a string" << endl;
-		    cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
-		    continue;
-		}
-		else {
-		    const char * prize = json_object_get_string(name);
-		    result.insert(prize);
-		}
+
+	    json_object * type = object_get(step, "type");
+	    if (!type) {
+	        cerr << "ERROR:(boot-plugin):" << "no -type- in item #" << i << endl;
+	        continue;
+	    }
+	    const char * type_c = json_object_get_string(type);
+	    if (strcmp(type_c, "+") != 0) {
+	        cerr << "DEBUG:(boot-plugin):" << "ignoring type: " << type_c <<" in item #" << i << endl;
+	        continue;
+	    }
+
+	    json_object * stage = object_get(step, "stage");
+	    if (!stage) {
+	        cerr << "ERROR:(boot-plugin):" << "no -stage- in item #" << i << endl;
+	        continue;
+	    }
+	    const char * stage_c = json_object_get_string(stage);
+	    if (strcmp(stage_c, "ok") != 0) {
+	        cerr << "DEBUG:(boot-plugin):" << "ignoring stage: " << stage_c <<" in item #" << i << endl;
+	        continue;    
+	    }
+
+	    json_object * solvable = object_get(step, "solvable");
+	    if (!solvable) {
+	        cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
+	        continue;
+	    }
+	    json_object * name = object_get(solvable, "n");
+	    if (!name) {
+	        cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
+	        continue;
+	    }
+	    if (json_object_get_type(name) != json_type_string) {
+	        cerr << "ERROR:(boot-plugin):" << "\"n\" is not a string" << endl;
+	        cerr << "ERROR:(boot-plugin):" << "in item #" << i << endl;
+	        continue;
+	    }
+	    else {
+	        const char * prize = json_object_get_string(name);
+	        result.insert(prize);
 	    }
 	}
     }
