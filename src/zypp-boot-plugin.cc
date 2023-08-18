@@ -57,11 +57,6 @@ public:
 class ZyppBootPlugin : public ZyppCommitPlugin
 {
 public:
-    ZyppBootPlugin(const ProgramOptions& opts)
-    : solvable_matchers(SolvableMatcher::load_config(opts.plugin_config))
-    {
-    }
-
     Message plugin_begin(const Message& m) override {
 	cerr << "INFO:(boot-plugin):" << m.command << endl;
 	return ack();
@@ -81,11 +76,11 @@ public:
         set<string> solvables = get_solvables(msg);
         cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
 
-        bool found, important;
-        match_solvables(solvables, found, important);
-        cerr << "INFO:(boot-plugin):" << "found: " << found << ", important: " << important << endl;
+	ProgramOptions opts;
+        Boot bootkind = SolvableMatcher::match_solvables(solvables, opts.plugin_config);
+        cerr << "INFO:(boot-plugin):" << "End result which has to be set: " << boot_to_str(bootkind) << endl;
 
-        if (found || important) {
+        if (bootkind != Boot::NONE) {
 	   cerr << "INFO:(boot-plugin):" << "setting boot" << endl;
  	   // FIXME
 	}
@@ -94,14 +89,9 @@ public:
     }
 
 private:
-    vector<SolvableMatcher> solvable_matchers;
-
-    enum class Boot { HARD, KEXEC, SOFT };
 
     set<string> get_solvables(const Message&);
-
-    void match_solvables(const set<string>& solvables, bool& found, bool& important);
-
+    const char* boot_to_str(Boot boot);
 };
 
 
@@ -115,6 +105,22 @@ object_get(json_object* obj, const char* name)
 	return NULL;
     }
     return result;
+}
+
+const char*
+ZyppBootPlugin::boot_to_str(Boot boot)
+{
+    switch(boot)
+    {
+    case Boot::HARD:
+	return "HARD";
+    case Boot::KEXEC:
+	return "KEXEC";
+    case Boot::SOFT:
+        return "SOFT";
+    default:
+        return "NONE";
+    }
 }
 
 set<string>
@@ -191,25 +197,6 @@ ZyppBootPlugin::get_solvables(const Message& msg)
     return result;
 }
 
-
-void
-ZyppBootPlugin::match_solvables(const set<string>& solvables, bool& found, bool& important)
-{
-    found = false;
-    important = false;
-    for (auto s: solvables) {
-	for (auto matcher: solvable_matchers) {
-	    if (matcher.match(s)) {
-		found = true;
-		important = important || matcher.important;
-		if (found && important)
-		    return; // short circuit
-	    }
-	}
-    }
-}
-
-
 int
 main()
 {
@@ -219,7 +206,6 @@ main()
 	return plugin.main();
     }
 
-    ProgramOptions options;
-    ZyppBootPlugin plugin(options);
+    ZyppBootPlugin plugin;
     return plugin.main();
 }
