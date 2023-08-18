@@ -26,9 +26,6 @@ boost_dep = dependency('boost')
 json_dep = dependency('json')
 
 pk_prefix = get_option('prefix')
-pk_includedir = get_option('includedir')
-pk_libdir = get_option('libdir')
-pk_mandir = get_option('mandir')
 pk_sysconfdir = get_option('sysconfdir')
 
 c_flags = [
