@@ -8,7 +8,6 @@ project('zypp-boot_plugin', 'cpp',
 		'warning_level=2',
 		'prefix=/usr',
 		'sysconfdir=/etc',
-		'localstatedir=/var',
 	],
 	meson_version : '>= 0.49.0',
 )
@@ -26,10 +25,22 @@ libeconf_dep = dependency('libeconf')
 boost_dep = dependency('boost')
 json_dep = dependency('json')
 
+pk_prefix = get_option('prefix')
+pk_includedir = get_option('includedir')
+pk_libdir = get_option('libdir')
+pk_mandir = get_option('mandir')
+pk_sysconfdir = get_option('sysconfdir')
+
+c_flags = [
+  '-DUSR_CONF_DIR="@0@@1@/zypp"'.format(pk_prefix, pk_sysconfdir),
+  '-DCONF_DIR="@0@/zypp"'.format(pk_sysconfdir)
+]
+
 boot_plugin = executable(
   'boot-plugin',
   boot_plugin_src,
   dependencies : [boost_dep, libeconf_dep, json_dep],
+  cpp_args: c_flags,
   install : true,
   install_dir : '/usr/lib/zypp/plugins/commit'
 )
@@ -40,7 +51,7 @@ config = files(
 
 install_data(
   config,
-  install_dir : '/usr/etc/zypp'
+  install_dir : '@0@@1@/zypp'.format(pk_prefix, pk_sysconfdir)
 )
 
 # Unit tests

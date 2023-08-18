@@ -49,7 +49,7 @@ public:
 	if (s)
 	    plugin_config = s;
 	else
-  	    plugin_config = "zypp-boot-plugin.conf";
+  	    plugin_config = "zypp-boot-plugin";
     }
 };
 
