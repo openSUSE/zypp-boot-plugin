@@ -1,9 +1,6 @@
 // getenv
 #include <stdlib.h>
 
-// split
-#include <boost/algorithm/string.hpp>
-
 #include <iostream>
 #include <set>
 #include <vector>
