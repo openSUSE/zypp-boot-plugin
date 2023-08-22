@@ -13,6 +13,55 @@ using namespace std;
 #define POSTFIX ".conf"
 
 Boot
+check_boot_level(const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles)
+{
+    Boot ret = current_boot_level;
+    const char *boot_level_string = NULL;
+
+    switch(boot_level)
+    {
+    case Boot::HARD:
+	boot_level_string = "reboot";
+	break;
+    case Boot::KEXEC:
+	boot_level_string = "kexec";
+	break;
+    case Boot::SOFT:
+	boot_level_string = "soft-reboot";
+	break;
+    default:
+        cerr << "WARNING:(boot-plugin): given wrong boot level" << endl;
+	return ret;
+    }
+
+    char *dep_list = NULL;
+    econf_err e_error = econf_getStringValue(conffiles, "main", boot_level_string, &dep_list);
+    if (e_error)
+    {
+        cerr << "Warning:(boot-plugin): Cannot read '" << boot_level_string << "': " <<
+		std::string(econf_errString(e_error)) <<
+		endl;
+	return ret;
+    } else {
+        if (dep_list != NULL) {
+   	    std::string dep_list_string(dep_list);
+	    // Split by ","
+	    std::vector<std::string> splitResult;
+	    boost::algorithm::split(splitResult, dep_list_string, boost::is_any_of(","));
+
+	    for(std::string& flag : splitResult) {
+		boost::trim(flag);
+		std::cerr << "DEBUG:(boot-plugin): " << boot_level_string << ":" << flag << std::endl;
+		if ((package_name == flag) && (ret < boot_level))
+		    ret = boot_level;
+	    }
+	}
+    }
+
+    return ret;
+}
+
+Boot
 SolvableMatcher::match_solvables(const set<string>& solvables, const std::string& cfg_filename)
 {
     Boot ret = Boot::NONE;
@@ -35,80 +84,9 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 	boost::trim(solvable);
 	cerr << "DEBUG:(boot-plugin): Searching boot flag for:" << solvable << endl;
 
-	//soft-reboot
-        char *soft_reboot_string = NULL;
-        e_error = econf_getStringValue(conffiles, "main", "soft-reboot", &soft_reboot_string);
-        if (e_error)
-        {
-	    cerr << "Warning:(boot-plugin): Cannot read 'soft-reboot': " <<
-		    std::string(econf_errString(e_error)) <<
-		    endl;
-            continue;
-        } else {
-            if (soft_reboot_string != NULL) {
-   	        std::string soft_reboot_list_string(soft_reboot_string);
-	        // Split by ","
-	        std::vector<std::string> splitResult;
-	        boost::algorithm::split(splitResult, soft_reboot_list_string, boost::is_any_of(","));
-
-	        for(std::string& flag : splitResult) {
-		    boost::trim(flag);
-	            std::cerr << "DEBUG:(boot-plugin): soft-reboot flag:" << flag << std::endl;
-		    if ((solvable == flag) && (ret < Boot::SOFT))
-			 ret = Boot::SOFT;
-	        }
-	    }
-	}
-
-	// kexec
-        char *kexec_string = NULL;
-        e_error = econf_getStringValue(conffiles, "main", "kexec", &kexec_string);
-        if (e_error)
-        {
-	    cerr << "Warning:(boot-plugin): Cannot read 'kexec': " <<
-		    std::string(econf_errString(e_error)) <<
-		    endl;
-            continue;
-        } else {
-            if (kexec_string != NULL) {
-   	        std::string kexec_list_string(kexec_string);
-	        // Split by ","
-	        std::vector<std::string> splitResult;
-	        boost::algorithm::split(splitResult, kexec_list_string, boost::is_any_of(","));
-
-	        for(std::string& flag : splitResult) {
-		    boost::trim(flag);
-	            std::cerr << "DEBUG:(boot-plugin): kexec flag:" << flag << std::endl;
-		    if ((solvable == flag) && (ret < Boot::KEXEC))
-			 ret = Boot::KEXEC;
-	        }
-	    }
-	}
-
-	//hard reboot
-        char *hard_reboot_string = NULL;
-        e_error = econf_getStringValue(conffiles, "main", "reboot", &hard_reboot_string);
-        if (e_error)
-        {
-	    cerr << "Warning:(boot-plugin): Cannot read 'reboot': " <<
-		    std::string(econf_errString(e_error)) <<
-		    endl;
-            continue;
-        } else {
-            if (hard_reboot_string != NULL) {
-   	        std::string hard_reboot_list_string(hard_reboot_string);
-	        // Split by ","
-	        std::vector<std::string> splitResult;
-	        boost::algorithm::split(splitResult, hard_reboot_list_string, boost::is_any_of(","));
-
-	        for(std::string& flag : splitResult) {
-		    boost::trim(flag);
-		    std::cerr << "DEBUG:(boot-plugin): reboot flag:" << flag << std::endl;
-		    if ((solvable == flag) && (ret < Boot::HARD))
-			ret = Boot::HARD;
-	        }
-	    }
-	}
+        ret = check_boot_level(ret, Boot::HARD, solvable , conffiles);
+        ret = check_boot_level(ret, Boot::KEXEC, solvable , conffiles);
+	ret = check_boot_level(ret, Boot::SOFT, solvable , conffiles);
     }
 
     return ret;
