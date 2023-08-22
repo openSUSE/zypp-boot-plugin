@@ -1,6 +1,7 @@
 // split
 #include <boost/algorithm/string/split.hpp> // boost::algorithm::split
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
+#include <boost/algorithm/string/trim.hpp>
 
 #include <string>
 #include <libeconf.h>
@@ -27,12 +28,14 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 	econf_freeFile(conffiles);
 	cerr << "ERROR:(boot-plugin): Cannot load these config files: " <<
 		std::string(econf_errString(e_error)) << endl;
-	return Boot::NONE;
+	return ret;
     }
 
-    for (auto s: solvables) {
-	cerr << "DEBUG:(boot-plugin): Searching boot flag for:" << s << endl;
+    for (auto solvable: solvables) {
+	boost::trim(solvable);
+	cerr << "DEBUG:(boot-plugin): Searching boot flag for:" << solvable << endl;
 
+	//soft-reboot
         char *soft_reboot_string = NULL;
         e_error = econf_getStringValue(conffiles, "main", "soft-reboot", &soft_reboot_string);
         if (e_error)
@@ -48,12 +51,64 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 	        std::vector<std::string> splitResult;
 	        boost::algorithm::split(splitResult, soft_reboot_list_string, boost::is_any_of(","));
 
-	        for(const std::string& s : splitResult) {
-	            std::cerr << "DEBUG:(boot-plugin): soft-reboot flag:" << s << std::endl;
+	        for(std::string& flag : splitResult) {
+		    boost::trim(flag);
+	            std::cerr << "DEBUG:(boot-plugin): soft-reboot flag:" << flag << std::endl;
+		    if ((solvable == flag) && (ret < Boot::SOFT))
+			 ret = Boot::SOFT;
 	        }
 	    }
 	}
 
+	// kexec
+        char *kexec_string = NULL;
+        e_error = econf_getStringValue(conffiles, "main", "kexec", &kexec_string);
+        if (e_error)
+        {
+	    cerr << "Warning:(boot-plugin): Cannot read 'kexec': " <<
+		    std::string(econf_errString(e_error)) <<
+		    endl;
+            continue;
+        } else {
+            if (kexec_string != NULL) {
+   	        std::string kexec_list_string(kexec_string);
+	        // Split by ","
+	        std::vector<std::string> splitResult;
+	        boost::algorithm::split(splitResult, kexec_list_string, boost::is_any_of(","));
+
+	        for(std::string& flag : splitResult) {
+		    boost::trim(flag);
+	            std::cerr << "DEBUG:(boot-plugin): kexec flag:" << flag << std::endl;
+		    if ((solvable == flag) && (ret < Boot::KEXEC))
+			 ret = Boot::KEXEC;
+	        }
+	    }
+	}
+
+	//hard reboot
+        char *hard_reboot_string = NULL;
+        e_error = econf_getStringValue(conffiles, "main", "reboot", &hard_reboot_string);
+        if (e_error)
+        {
+	    cerr << "Warning:(boot-plugin): Cannot read 'reboot': " <<
+		    std::string(econf_errString(e_error)) <<
+		    endl;
+            continue;
+        } else {
+            if (hard_reboot_string != NULL) {
+   	        std::string hard_reboot_list_string(hard_reboot_string);
+	        // Split by ","
+	        std::vector<std::string> splitResult;
+	        boost::algorithm::split(splitResult, hard_reboot_list_string, boost::is_any_of(","));
+
+	        for(std::string& flag : splitResult) {
+		    boost::trim(flag);
+		    std::cerr << "DEBUG:(boot-plugin): reboot flag:" << flag << std::endl;
+		    if ((solvable == flag) && (ret < Boot::HARD))
+			ret = Boot::HARD;
+	        }
+	    }
+	}
     }
 
     return ret;
