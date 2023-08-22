@@ -1,22 +1,39 @@
 // split
 #include <boost/algorithm/string/split.hpp> // boost::algorithm::split
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 #include <string>
 #include <libeconf.h>
 #include <vector>
+#include <cstdlib>
 #include "solvable-matcher.h"
 
 using namespace std;
 
 #define POSTFIX ".conf"
 
+bool
+provides( const string dependency, const string package_name)
+{
+    string command = "/bin/rpm -q --whatprovides --qf '%{NAME}\\n' '" +
+	    dependency + "'|/usr/bin/grep -Pzq '" + package_name + "\\n'";
+    if (system(command.c_str()) == 0)
+    {
+        cerr << "DEBUG:(boot-plugin): Found package " << package_name << " for dependency " << dependency << endl;
+	return true;
+    }
+    return false;
+}
+
 Boot
-check_boot_level(const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles)
+check_boot_level( const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles )
 {
     Boot ret = current_boot_level;
     const char *boot_level_string = NULL;
+
+    if (ret >= boot_level) return ret;
 
     switch(boot_level)
     {
@@ -52,8 +69,21 @@ check_boot_level(const Boot current_boot_level, const Boot boot_level, const str
 	    for(std::string& flag : splitResult) {
 		boost::trim(flag);
 		std::cerr << "DEBUG:(boot-plugin): " << boot_level_string << ":" << flag << std::endl;
-		if ((package_name == flag) && (ret < boot_level))
+
+		// checking if the flag is the package name
+		if (package_name == flag)
+		{
 		    ret = boot_level;
+		} else {
+  		    // checking if the package fullfill a given provides
+ 		    if (boost::starts_with(flag, "provides:")) {
+		        flag = flag.substr(9);
+			std::cerr << "DEBUG:(boot-plugin): checking provides " << flag << endl;
+			if (provides(flag, package_name)) {
+			   ret = boot_level;
+			}
+		    }
+		}
 	    }
 	}
     }
