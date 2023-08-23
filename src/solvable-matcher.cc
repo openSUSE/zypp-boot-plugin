@@ -63,13 +63,13 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
     switch(boot_level)
     {
     case Boot::HARD:
-	boot_level_string = "reboot";
+	    boot_level_string = HARDSTR;
 	break;
     case Boot::KEXEC:
-	boot_level_string = "kexec";
+	    boot_level_string = KEXECSTR;
 	break;
     case Boot::SOFT:
-	boot_level_string = "soft-reboot";
+	    boot_level_string = SOFTSTR;
 	break;
     default:
         cerr << "WARNING:(boot-plugin): given wrong boot level" << endl;

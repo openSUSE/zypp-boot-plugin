@@ -5,6 +5,10 @@
 #include <string>
 #include <set>
 
+#define SOFTSTR "soft-reboot"
+#define KEXECSTR "kexec"
+#define HARDSTR "reboot"
+
 enum class Boot { NONE, SOFT, KEXEC, HARD };
 
 struct SolvableMatcher {

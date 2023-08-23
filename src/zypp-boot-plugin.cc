@@ -110,11 +110,11 @@ ZyppBootPlugin::boot_to_str(Boot boot)
     switch(boot)
     {
     case Boot::HARD:
-	return "HARD";
+	return HARDSTR;
     case Boot::KEXEC:
-	return "KEXEC";
+	return KEXECSTR;
     case Boot::SOFT:
-        return "SOFT";
+        return SOFTSTR;
     default:
         return "NONE";
     }
