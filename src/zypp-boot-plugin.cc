@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <iostream>
+#include <fstream>
 #include <set>
 #include <vector>
 #include <map>
@@ -10,6 +11,8 @@
 #include <json.h>
 
 using namespace std;
+
+#define REBOOTNEEDED "/run/reboot-needed"
 
 #include "zypp-commit-plugin.h"
 #include "solvable-matcher.h"
@@ -75,11 +78,14 @@ public:
 
 	ProgramOptions opts;
         Boot bootkind = SolvableMatcher::match_solvables(solvables, opts.plugin_config);
-        cerr << "INFO:(boot-plugin):" << "End result which has to be set: " << boot_to_str(bootkind) << endl;
 
         if (bootkind != Boot::NONE) {
-	   cerr << "INFO:(boot-plugin):" << "setting boot" << endl;
- 	   // FIXME
+           cerr << "INFO:(boot-plugin):" << "Set '" << boot_to_str(bootkind) <<
+		   "' in " << REBOOTNEEDED<< endl;
+	   ofstream outputfile;
+           outputfile.open (REBOOTNEEDED);
+           outputfile << boot_to_str(bootkind);
+           outputfile.close();
 	}
 
 	return ack();
