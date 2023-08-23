@@ -1,0 +1,92 @@
+<refentry xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="zypp-boot-plugin">
+  <refmeta>
+    <refentrytitle>zypp-boot-plugin</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="source">zypp-boot-plugin %version%</refmiscinfo>
+    <refmiscinfo class="manual">zypp-boot-plugin</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>zypp-boot-plugin</refname>
+    <refpurpose>Libzypp plugin for evaluating needed reboot after package installation/update.</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+
+    <title>DESCRIPTION</title>
+
+    <para>
+      This Zypp plugin will be called after each package installation/update with will be done
+      by applications which uses libzypp.
+    </para>
+    <para>
+      If needed, the plugin creates the file <filename>/run/reboot-needed</filename> which indicates
+      for other applications, that a reboot is needed.
+    </para>
+    <para>
+      There are different boot levels which will be stored in the <filename>/run/reboot-needed</filename> as
+      an normal ASCII string:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          reboot
+        </term>
+        <listitem>
+          <para>
+            Hard reboot
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          kexec
+        </term>
+        <listitem>
+          <para>
+            Booting a new kernel without initializing hardware and without using any bootloader like Grub2.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          soft-reboot
+        </term>
+        <listitem>
+          <para>
+            Soft reboot done by E.G. *systemctl soft-reboot*
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>FILES</title>
+    <variablelist>
+      <varlistentry>
+        <term>/usr/etc/zypp/zypp-boot-plugin.conf</term>
+        <listitem>
+          <para>File which defines package lists for which a reboot is needed after installation/update.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+	<refentrytitle>zypper</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHORS</title>
+    <para>
+      Stefan Schubert &lt;schubi@suse.com&gt;.
+    </para>
+  </refsect1>
+
+</refentry>

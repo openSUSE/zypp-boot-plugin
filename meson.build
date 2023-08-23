@@ -51,5 +51,8 @@ install_data(
   install_dir : '@0@@1@/zypp'.format(pk_prefix, pk_sysconfdir)
 )
 
+# Manual pages
+subdir('man')
+
 # Unit tests
 #subdir('testsuite')
