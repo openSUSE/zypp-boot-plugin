@@ -17,11 +17,11 @@ ASCII string:
 The plugin is getting a list of fresh installed/updated packages. The plugin
 checks for each package if a reboot is needed:
 
-1. The plugin checks if the installed/updated package is in the package list defined in */etc/zypp/zypp-boot-plugin.conf*:
+1. The plugin checks if the installed/updated package is in the package list defined in */usr/etc/zypp/zypp-boot-plugin.conf*:
 
    ```
    ## Configuration file for zypp-boot-plugin plugin.
-   ## /etc/zypp/zypp-boot-plugin.conf
+   ## /usr/etc/zypp/zypp-boot-plugin.conf
    ##
    ## This configuration file defines packages for which a reboot
    ## is needed after they have been installed/updated.
@@ -87,7 +87,8 @@ checks for each package if a reboot is needed:
 
    ```
 
-2.If an fresh installed/updated package is not defined in */etc/zypp/zypp-boot-plugin.conf* the provides dependency
+
+2.If an fresh installed/updated package is not defined in */usr/etc/zypp/zypp-boot-plugin.conf* the provides dependency
   of this package will be checked for the tag *installhint(reboot-needed)*.
   If this dependency has been defined, a hard reboot will be done.
 
