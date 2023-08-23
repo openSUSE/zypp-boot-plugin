@@ -1,5 +1,5 @@
 // split
-#include <boost/algorithm/string/split.hpp> // boost::algorithm::split
+#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -21,8 +21,32 @@ provides( const string dependency, const string package_name)
 	    dependency + "'|/usr/bin/grep -Pzq '" + package_name + "\\n'";
     if (system(command.c_str()) == 0)
     {
-        cerr << "DEBUG:(boot-plugin): Found package " << package_name << " for dependency " << dependency << endl;
+        cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " for dependency " << dependency << endl;
 	return true;
+    }
+    return false;
+}
+
+bool
+check_installhint( const string boot_level_string, const string package_name)
+{
+    if (provides("installhint(reboot-needed)", package_name)) {
+	// checking boot level if provided
+	string command = "/bin/rpm -q --provides " + package_name +
+		"|/usr/bin/grep -Pzq 'installhint\\(reboot-needed\\) = " + boot_level_string + "\\n'";
+	if (system(command.c_str()) == 0)
+	{
+	    cerr << "DEBUG:(boot-plugin):  --- Found boot dependency 'installhint(reboot-needed) = " << boot_level_string <<
+		    "' for package " << package_name << endl;
+	    return true;
+	} else {
+            if (boot_level_string == "reboot") {
+	        // boot level is "reboot" (hard reboot) and installhint(reboot-needed) is provided
+	        // So it has to be a hard reboot
+	        cerr << "DEBUG:(boot-plugin):  --- set hard reboot for package " << package_name << endl;
+ 	        return true;
+	    }
+	}
     }
     return false;
 }
@@ -30,6 +54,7 @@ provides( const string dependency, const string package_name)
 Boot
 check_boot_level( const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles )
 {
+    static bool installhint_found = false;
     Boot ret = current_boot_level;
     const char *boot_level_string = NULL;
 
@@ -52,6 +77,7 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
     }
 
     char *dep_list = NULL;
+    bool found = false;
     econf_err e_error = econf_getStringValue(conffiles, "main", boot_level_string, &dep_list);
     if (e_error)
     {
@@ -68,23 +94,29 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 
 	    for(std::string& flag : splitResult) {
 		boost::trim(flag);
-		std::cerr << "DEBUG:(boot-plugin): " << boot_level_string << ":" << flag << std::endl;
+		cerr << "DEBUG:(boot-plugin): - checking config entry " << boot_level_string << ": " << flag << endl;
 
 		// checking if the flag is the package name
-		if (package_name == flag)
-		{
+		if (package_name == flag) {
 		    ret = boot_level;
-		} else {
+		    found = true;
+		} else if (boost::starts_with(flag, "provides:")) {
   		    // checking if the package fullfill a given provides
- 		    if (boost::starts_with(flag, "provides:")) {
-		        flag = flag.substr(9);
-			std::cerr << "DEBUG:(boot-plugin): checking provides " << flag << endl;
-			if (provides(flag, package_name)) {
-			   ret = boot_level;
-			}
+		    flag = flag.substr(9);
+		    cerr << "DEBUG:(boot-plugin):  - checking provides " << flag << endl;
+		    if (provides(flag, package_name)) {
+			ret = boot_level;
+			found = true;
 		    }
 		}
 	    }
+	    if (!found && !installhint_found) {
+	        cerr << "DEBUG:(boot-plugin):  - checking for provides installhint(reboot-needed) (evtl. boot level)" << endl;
+		if (check_installhint( boot_level_string, package_name)) {
+		    installhint_found = true;
+		    ret = boot_level;
+		}
+	    }   
 	}
     }
 
@@ -112,12 +144,13 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 
     for (auto solvable: solvables) {
 	boost::trim(solvable);
-	cerr << "DEBUG:(boot-plugin): Searching boot flag for:" << solvable << endl;
+	cerr << "DEBUG:(boot-plugin): searching boot flag for: " << solvable << endl;
 
-        ret = check_boot_level(ret, Boot::HARD, solvable , conffiles);
-        ret = check_boot_level(ret, Boot::KEXEC, solvable , conffiles);
 	ret = check_boot_level(ret, Boot::SOFT, solvable , conffiles);
+        ret = check_boot_level(ret, Boot::KEXEC, solvable , conffiles);
+        ret = check_boot_level(ret, Boot::HARD, solvable , conffiles);
     }
+    econf_freeFile(conffiles);    
 
     return ret;
 }
