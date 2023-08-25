@@ -104,22 +104,3 @@ in */run/reboot-needed* where the "strongest" boot process in the list will be t
 3. soft-boot
 
 
-## Building plugin
-
-#### Prerequires:
-* meson
-* libeconf-devel
-* libjson-c-devel
-
-#### Build:
-```
-# meson <builddir>
-# cd <builddir>
-# meson compile
-```
-
-#### Installation:
-```
-# sudo meson install
-```
-
