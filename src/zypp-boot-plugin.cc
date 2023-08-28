@@ -9,6 +9,7 @@
 #include <string>
 #include <regex>
 #include <json.h>
+#include <string.h>
 
 using namespace std;
 
