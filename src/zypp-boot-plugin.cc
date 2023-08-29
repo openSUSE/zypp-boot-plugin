@@ -13,8 +13,6 @@
 
 using namespace std;
 
-#define REBOOTNEEDED "/run/reboot-needed"
-
 #include "zypp-commit-plugin.h"
 #include "solvable-matcher.h"
 
@@ -41,6 +39,7 @@ class ProgramOptions
 public:
 
     string plugin_config;
+    string reboot_file;
 
     ProgramOptions()
     {
@@ -51,6 +50,12 @@ public:
 	    plugin_config = s;
 	else
   	    plugin_config = "zypp-boot-plugin";
+
+	s = getenv("ZYPP_BOOT_PLUGIN_REBOOT_FILE");
+	if (s)
+	    reboot_file = s;
+	else
+	    reboot_file = "/run/reboot-needed";
     }
 };
 
@@ -82,9 +87,9 @@ public:
 
         if (bootkind != Boot::NONE) {
            cerr << "INFO:(boot-plugin):" << "Set '" << boot_to_str(bootkind) <<
-		   "' in " << REBOOTNEEDED<< endl;
+		   "' in " << opts.reboot_file << endl;
 	   ofstream outputfile;
-           outputfile.open (REBOOTNEEDED);
+           outputfile.open (opts.reboot_file);
            outputfile << boot_to_str(bootkind);
            outputfile.close();
 	}

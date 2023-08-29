@@ -128,13 +128,18 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 {
     Boot ret = Boot::NONE;
 
-    cerr << "DEBUG:(boot-plugin): loading " << cfg_filename <<
-	    POSTFIX << " from " <<
-	    USR_CONF_DIR << " and " << CONF_DIR << endl;
-
     econf_file *conffiles;
 
-    econf_err e_error = econf_readDirs(&conffiles, USR_CONF_DIR, CONF_DIR, cfg_filename.c_str(), "conf", "=", "#");
+    // Reading one file only at first
+    econf_err e_error = econf_readFile(&conffiles, cfg_filename.c_str(), "=", "#");
+    if (e_error == ECONF_NOFILE) {
+        cerr << "DEBUG:(boot-plugin): loading " << cfg_filename <<
+		POSTFIX << " from " <<
+		USR_CONF_DIR << " and " << CONF_DIR << endl;
+	e_error = econf_readDirs(&conffiles, USR_CONF_DIR, CONF_DIR, cfg_filename.c_str(), "conf", "=", "#");
+    } else {
+       cerr << "DEBUG:(boot-plugin): loaded " << cfg_filename << endl;
+    }
     if (e_error && e_error != ECONF_NOFILE) {
 	econf_freeFile(conffiles);
 	cerr << "ERROR:(boot-plugin): Cannot load these config files: " <<
