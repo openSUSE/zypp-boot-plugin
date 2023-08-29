@@ -55,4 +55,4 @@ install_data(
 subdir('man')
 
 # Unit tests
-#subdir('testsuite')
+subdir('tests')
