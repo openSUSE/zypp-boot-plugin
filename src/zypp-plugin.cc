@@ -15,10 +15,12 @@ ZyppPlugin::main()
     while(true)
     {
 	Message msg = read_message(pin);
-	if (pin.eof())
+	if (pin.eof() && msg.command.length() <= 0)
 	    break;
 	Message reply = dispatch(msg);
 	write_message(pout, reply);
+        if (pin.eof())
+	    break;
     }
     return 0;
 }
