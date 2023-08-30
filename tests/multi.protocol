@@ -1,0 +1,36 @@
+COMMITEND
+
+{
+"TransactionStepList":[
+{
+  "solvable":{
+    "a":"x86_64",
+    "n":"mc",
+    "r":"150400.163.1",
+    "v": "4.8.30"
+  },
+  "stage":"ok",
+  "type":"+"
+},
+{
+  "solvable":{
+    "a":"x86_64",
+    "n":"grub2",
+    "r":"1501",
+    "v": "4.3"
+  },
+  "stage":"ok",
+  "type":"+"
+},
+{
+  "solvable":{
+    "a":"x86_64",
+    "n":"libopenssl",
+    "r":"1",
+    "v": "1.0"
+  },
+  "stage":"ok",
+  "type":"+"
+}
+]
+}
