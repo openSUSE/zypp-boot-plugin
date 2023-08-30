@@ -100,6 +100,7 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 		if (package_name == flag) {
 		    ret = boot_level;
 		    found = true;
+                    cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << endl;
 		} else if (boost::starts_with(flag, "provides:")) {
   		    // checking if the package fullfill a given provides
 		    flag = flag.substr(9);
@@ -111,7 +112,7 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 		}
 	    }
 	    if (!found && !installhint_found) {
-	        cerr << "DEBUG:(boot-plugin):  - checking for provides installhint(reboot-needed) (evtl. boot level)" << endl;
+	        cerr << "DEBUG:(boot-plugin): - checking for provides installhint(reboot-needed) (evtl. boot level)" << endl;
 		if (check_installhint( boot_level_string, package_name)) {
 		    installhint_found = true;
 		    ret = boot_level;
