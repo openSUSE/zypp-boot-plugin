@@ -141,8 +141,7 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
     } else {
        cerr << "DEBUG:(boot-plugin): loaded " << cfg_filename << endl;
     }
-    if (e_error && e_error != ECONF_NOFILE) {
-	econf_freeFile(conffiles);
+    if (e_error) {
 	cerr << "ERROR:(boot-plugin): Cannot load these config files: " <<
 		std::string(econf_errString(e_error)) << endl;
 	return ret;
