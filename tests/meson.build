@@ -11,3 +11,6 @@ test('tst-provides', find_program(meson.current_source_dir() +'/tst_provides.sh'
 
 test('tst-multi', find_program(meson.current_source_dir() +'/tst_multi.sh'),
   env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_multi.out'])
+
+test('tst-zypper_dup', find_program(meson.current_source_dir() +'/tst_zypper_dup.sh'),
+  env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_zypper_dup.out'])
