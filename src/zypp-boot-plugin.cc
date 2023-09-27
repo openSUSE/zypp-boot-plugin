@@ -80,7 +80,7 @@ public:
         cerr << "INFO:(boot-plugin):" << msg.command << " BEGIN" << endl;
 
         set<string> solvables = get_solvables(msg);
-        cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
+        // cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
 
 	ProgramOptions opts;
         Boot bootkind = SolvableMatcher::match_solvables(solvables, opts.plugin_config);
