@@ -24,7 +24,7 @@
 ### Tagging new Release
 
 1. Edit NEWS declaring the new version number and making all the changes to it.
-2. Update the version number in CMakeCache.txt and meson.build.
+2. Update the version number in meson.build.
 2. Commit to git.
 3. On https://github.com/openSUSE/zypp-boot-plugin click on releases on the right column (or go to https://github.com/openSUSE/zypp-boot-plugin/releases)
 4. 'Draft a new release'.
