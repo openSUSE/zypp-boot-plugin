@@ -77,7 +77,7 @@ public:
     }
 
     Message commit_end(const Message& msg) override {
-	cerr << "INFO:(boot-plugin):" << msg.command << endl;
+        cerr << "INFO:(boot-plugin):" << msg.command << " BEGIN" << endl;
 
         set<string> solvables = get_solvables(msg);
         cerr << "DEBUG:(boot-plugin):" << "solvables: " << solvables << endl;
@@ -93,6 +93,8 @@ public:
            outputfile << boot_to_str(bootkind);
            outputfile.close();
 	}
+
+	cerr << "INFO:(boot-plugin):" << msg.command << " END" << endl;
 
 	return ack();
     }

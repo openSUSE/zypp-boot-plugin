@@ -44,6 +44,7 @@ protected:
     Message ack() {
 	Message a;
 	a.command = "ACK";
+	std::cerr << "INFO:(boot-plugin):" << "RETURNING ACK" << std::endl;
 	return a;
     }
 };
