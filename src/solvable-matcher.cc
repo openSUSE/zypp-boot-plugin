@@ -94,27 +94,30 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 
 	    for(std::string& flag : splitResult) {
 		boost::trim(flag);
-		cerr << "DEBUG:(boot-plugin): - checking config entry " << boot_level_string << ": " << flag << endl;
+		// cerr << "DEBUG:(boot-plugin): - checking config entry " << boot_level_string << ": " << flag << endl;
 
 		// checking if the flag is the package name
 		if (package_name == flag) {
 		    ret = boot_level;
 		    found = true;
                     cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << endl;
+		    cerr << "DEBUG:(boot-plugin):      Found for level: " << boot_level_string << endl;
 		} else if (boost::starts_with(flag, "provides:")) {
   		    // checking if the package fullfill a given provides
 		    flag = flag.substr(9);
-		    cerr << "DEBUG:(boot-plugin):  - checking provides " << flag << endl;
+		    // cerr << "DEBUG:(boot-plugin):  - checking provides " << flag << endl;
 		    if (provides(flag, package_name)) {
 			ret = boot_level;
 			found = true;
+			cerr << "DEBUG:(boot-plugin):      Found for level: " << boot_level_string << endl;
 		    }
 		}
 	    }
 	    if (!found && !installhint_found) {
-	        cerr << "DEBUG:(boot-plugin): - checking for provides installhint(reboot-needed) (evtl. boot level)" << endl;
+		// cerr << "DEBUG:(boot-plugin): - checking for provides installhint(reboot-needed) (evtl. boot level)" << endl;
 		if (check_installhint( boot_level_string, package_name)) {
 		    installhint_found = true;
+		    cerr << "DEBUG:(boot-plugin):      Found for level: " << boot_level_string << endl;
 		    ret = boot_level;
 		}
 	    }   
@@ -149,7 +152,7 @@ SolvableMatcher::match_solvables(const set<string>& solvables, const std::string
 
     for (auto solvable: solvables) {
 	boost::trim(solvable);
-	cerr << "DEBUG:(boot-plugin): searching boot flag for: " << solvable << endl;
+	//cerr << "DEBUG:(boot-plugin): searching boot flag for: " << solvable << endl;
 
 	ret = check_boot_level(ret, Boot::SOFT, solvable , conffiles);
         ret = check_boot_level(ret, Boot::KEXEC, solvable , conffiles);
