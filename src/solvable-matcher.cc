@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/regex.hpp>
 
 #include <string>
 #include <libeconf.h>
@@ -97,7 +98,9 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 		// cerr << "DEBUG:(boot-plugin): - checking config entry " << boot_level_string << ": " << flag << endl;
 
 		// checking if the flag is the package name
-		if (package_name == flag) {
+		boost::regex expression(flag);
+		boost::cmatch what;
+		if (boost::regex_match(package_name.c_str(), what, expression)) {
 		    ret = boot_level;
 		    found = true;
                     cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << endl;

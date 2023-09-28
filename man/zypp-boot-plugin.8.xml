@@ -16,7 +16,7 @@
     <title>DESCRIPTION</title>
 
     <para>
-      This Zypp plugin will be called after each package installation/update with will be done
+      This Zypp plugin will be called after each package installation/update which will be done
       by applications which uses libzypp.
     </para>
     <para>
@@ -67,7 +67,19 @@
       <varlistentry>
         <term>/usr/etc/zypp/zypp-boot-plugin.conf</term>
         <listitem>
-          <para>File which defines package lists for which a reboot is needed after installation/update.</para>
+          <para>
+             File which defines package lists for which a reboot is needed after installation/update.
+             Do not touch this file because it will be overwritten by a new package installation/update.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>/etc/zypp/zypp-boot-plugin.conf</term>
+        <listitem>
+          <para>
+             Despite the file described above, this file can be edit by the admin and will NOT be overwritten
+             while an package installation/update. These file entries have the higest priority.
+          </para>
         </listitem>
       </varlistentry>
     </variablelist>

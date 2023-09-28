@@ -24,6 +24,7 @@ boot_plugin_src = files(
 libeconf_dep = dependency('libeconf')
 boost_dep = dependency('boost')
 json_dep = dependency('json')
+boost_regex_dep = cxx.find_library('boost_regex', required: true)
 
 pk_prefix = get_option('prefix')
 pk_sysconfdir = get_option('sysconfdir')
@@ -36,7 +37,7 @@ c_flags = [
 boot_plugin = executable(
   'boot-plugin',
   boot_plugin_src,
-  dependencies : [boost_dep, libeconf_dep, json_dep],
+  dependencies : [boost_dep, libeconf_dep, json_dep, boost_regex_dep],
   cpp_args: c_flags,
   install : true,
   install_dir : '/usr/lib/zypp/plugins/commit'
