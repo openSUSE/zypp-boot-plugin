@@ -1,3 +1,6 @@
+Version 0.0.3
+* Allowing regex expression for the package name in zypp-boot-plugin.conf.
+
 Version 0.0.2
 * Reduced logging in order not to overload the communication with libzypp.
 
