@@ -20,77 +20,77 @@ checks for each package if a reboot is needed:
 1. The plugin checks if the installed/updated package is in the package list defined in */usr/etc/zypp/zypp-boot-plugin.conf*:
 
    ```
-## Configuration file for zypp-boot-plugin plugin.
-## /usr/etc/zypp/zypp-boot-plugin.conf
-##
-## This configuration file defines packages for which a reboot
-## is needed after they have been installed/updated.
-##
-## The package name can also be defined by regex expressions.
-## This is needed for e.g. libraries with package names like
-## libopenssl1_1, libopenssl3, ...
-##
-
-[main]
-
-##
-## Packages for which a hard reboot is needed after they have been
-## installed or updated.
-##
-## Packages are selected either by name, or by provides. In the later case
-## the string must start with "provides:" immediately followed by the capability.
-##
-## Example:
-##	foo				- just packages with name 'foo'
-##	provides:bar                    - all packages providing 'bar'
-##
-## Valid values:
-##	Comma separated list of packages.
-##
-## Default value:
-##	empty
-##
-reboot = grub2
-
-##
-## Packages for which a kexec call is needed at least after they have been
-## installed or updated.
-##
-## Packages are selected either by name, or by provides. In the later case
-## the string must start with "provides:" immediately followed by the capability.
-##
-## Example:
-##	foo				- just packages with name 'foo'
-##	provides:bar                    - all packages providing 'bar'
-##
-## Valid values:
-##	Comma separated list of packages.
-##
-## Default value:
-##	empty
-##
-kexec = provides:multiversion(kernel)
-
-##
-## Packages for which a soft reboot is needed at least after they have been
-## installed or updated.
-##
-## Packages are selected either by name, or by provides. In the later case
-## the string must start with "provides:" immediately followed by the capability.
-##
-## Example:
-##	foo				- just packages with name 'foo'
-##	provides:bar                    - all packages providing 'bar'
-##
-## Valid values:
-##	Comma separated list of packages.
-##
-## Default value:
-##	empty
-##
-soft-reboot = glibc, dbus-broker, dbus-1-daemon, libopenssl[0-9]?_?[0-9]?_?[0-9]?, libopenssl[0-9]?_?[0-9]?_?[0-9]?-32bit
-
-
+   
+   ## Configuration file for zypp-boot-plugin plugin.
+   ## /usr/etc/zypp/zypp-boot-plugin.conf
+   ##
+   ## This configuration file defines packages for which a reboot
+   ## is needed after they have been installed/updated.
+   ##
+   ## The package name can also be defined by regex expressions.
+   ## This is needed for e.g. libraries with package names like
+   ## libopenssl1_1, libopenssl3, ...
+   ##
+   
+   [main]
+   
+   ##
+   ## Packages for which a hard reboot is needed after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages with name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   reboot = grub2
+   
+   ##
+   ## Packages for which a kexec call is needed at least after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages with name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   kexec = provides:multiversion(kernel)
+   
+   ##
+   ## Packages for which a soft reboot is needed at least after they have been
+   ## installed or updated.
+   ##
+   ## Packages are selected either by name, or by provides. In the later case
+   ## the string must start with "provides:" immediately followed by the capability.
+   ##
+   ## Example:
+   ##	foo				- just packages with name 'foo'
+   ##	provides:bar                    - all packages providing 'bar'
+   ##
+   ## Valid values:
+   ##	Comma separated list of packages.
+   ##
+   ## Default value:
+   ##	empty
+   ##
+   soft-reboot = glibc, dbus-broker, dbus-1-daemon, libopenssl[0-9]?_?[0-9]?_?[0-9]?, libopenssl[0-9]?_?[0-9]?_?[0-9]?-32bit
+   
    ```
 Admin/User changes should go into /etc/zypp/zypp-boot-plugin.conf which will not
 be overwritten while an package update.
