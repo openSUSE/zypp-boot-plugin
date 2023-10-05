@@ -1,5 +1,5 @@
 project('zypp-boot_plugin', 'cpp',
-	version : '0.0.3',
+	version : '0.0.4',
 	license : 'LGPLv3',
 	default_options : [
 		'buildtype=debugoptimized',
