@@ -92,8 +92,8 @@ checks for each package if a reboot is needed:
    soft-reboot = glibc, dbus-broker, dbus-1-daemon, libopenssl[0-9]?_?[0-9]?_?[0-9]?, libopenssl[0-9]?_?[0-9]?_?[0-9]?-32bit
    
    ```
-Admin/User changes should go into /etc/zypp/zypp-boot-plugin.conf which will not
-be overwritten while an package update.
+   Admin/User changes should go into /etc/zypp/zypp-boot-plugin.conf which will not
+   be overwritten while an package update.
 
 2.If an fresh installed/updated package is not defined in */usr/etc/zypp/zypp-boot-plugin.conf* the provides dependency
   of this package will be checked for the tag *installhint(reboot-needed)*.
