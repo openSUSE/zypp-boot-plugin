@@ -5,7 +5,7 @@ COMMITEND
 {
   "solvable":{
     "a":"x86_64",
-    "n":"openssl3",
+    "n":"libopenssl3",
     "r":"150400.163.1",
     "v": "4.8.30"
   },
