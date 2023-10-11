@@ -55,7 +55,10 @@ check_installhint( const string boot_level_string, const string package_name)
 Boot
 check_boot_level( const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles )
 {
+    /* The function will be called for the same package for boot level "soft", "kexec" and "hard" in that order. */
+    /* If one install hint matches no one else has to be checked for other boot levels and for that package.     */
     static bool installhint_found = false;
+
     Boot ret = current_boot_level;
     const char *boot_level_string = NULL;
 
@@ -71,6 +74,8 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 	break;
     case Boot::SOFT:
 	    boot_level_string = SOFTSTR;
+	    /* A new package will be checked. So the install hints has be checked again. */
+	    installhint_found = false;
 	break;
     default:
         cerr << "WARNING:(boot-plugin): given wrong boot level" << endl;

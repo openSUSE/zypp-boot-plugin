@@ -1,3 +1,6 @@
+Version 0.0.5
+* Fix in checking installhint(reboot-needed) (bsc#1215988).
+
 Version 0.0.4
 * Added libopenssl to soft-reboot, removed openssl from soft-reboot
 
