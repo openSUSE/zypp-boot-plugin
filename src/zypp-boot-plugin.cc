@@ -213,6 +213,7 @@ main()
 {
     if (getenv("DISABLE_ZYPP_BOOT_PLUGIN") != nullptr) {
 	cerr << "INFO:(boot-plugin):" << "$DISABLE_ZYPP_BOOT_PLUGIN is set - disabling boot-plugin" << endl;
+	// Only a dummy plugin will be called (ZyppCommitPlugin) which does nothing.
 	ZyppCommitPlugin plugin;
 	return plugin.main();
     }

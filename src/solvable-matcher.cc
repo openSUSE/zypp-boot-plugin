@@ -3,6 +3,9 @@
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/process/child.hpp>
+#include <boost/process/search_path.hpp>
+#include <boost/process/io.hpp>
 
 #include <string>
 #include <libeconf.h>
@@ -12,20 +15,28 @@
 #include "solvable-matcher.h"
 
 using namespace std;
+namespace bp = boost::process;
 
 #define POSTFIX ".conf"
 
 bool
 provides( const string dependency, const string package_name)
 {
-    string command = "/bin/rpm -q --whatprovides --qf '%{NAME}\\n' '" +
-	    dependency + "'|/usr/bin/grep -Pzq '" + package_name + "\\n'";
-    if (system(command.c_str()) == 0)
-    {
-        cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " for dependency " << dependency << endl;
-	return true;
+    bp::pipe p;
+    bp::ipstream is;
+    bool found = false;
+    bp::child rpm(bp::search_path("rpm"), "-q", "--whatprovides", "--qf", "%{NAME}\\n", dependency, bp::std_out > is);
+    std::string line;
+    
+    while (rpm.running() && std::getline(is, line)) {
+        boost::trim(line);
+	if (boost::equals(line, package_name)) {
+      	    found = true;
+    	    cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " for dependency " << dependency << endl;
+	}
     }
-    return false;
+    rpm.wait();
+    return found;
 }
 
 bool
@@ -33,9 +44,20 @@ check_installhint( const string boot_level_string, const string package_name)
 {
     if (provides("installhint(reboot-needed)", package_name)) {
 	// checking boot level if provided
-	string command = "/bin/rpm -q --provides " + package_name +
-		"|/usr/bin/grep -Pzq 'installhint\\(reboot-needed\\) = " + boot_level_string + "\\n'";
-	if (system(command.c_str()) == 0)
+        string search_str = "installhint(reboot-needed) = " + boot_level_string;
+	bp::ipstream is;
+	bool found = false;
+	bp::child rpm(bp::search_path("rpm"), "-q", "--provides", package_name, bp::std_out > is);
+	
+	std::string line;
+	while (rpm.running() && std::getline(is, line)) {
+            boost::trim(line);
+	    if (boost::equals(line, search_str))
+		found = true;
+	}
+	rpm.wait();
+
+	if (found)
 	{
 	    cerr << "DEBUG:(boot-plugin):  --- Found boot dependency 'installhint(reboot-needed) = " << boot_level_string <<
 		    "' for package " << package_name << endl;

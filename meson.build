@@ -22,7 +22,7 @@ boot_plugin_src = files(
 )
 
 libeconf_dep = dependency('libeconf')
-boost_dep = dependency('boost')
+boost_dep = dependency('boost', modules : ['system', 'filesystem'])
 json_dep = dependency('json')
 
 pk_prefix = get_option('prefix')
