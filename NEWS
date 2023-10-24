@@ -1,5 +1,6 @@
 Version 0.0.6
-* Using fork for RPM calls instead of unsecure system() call (bsc#1215988).
+* Using Boost:child for RPM calls instead of unsecure system()
+  call (bsc#1215988).
 
 Version 0.0.5
 * Fix in checking installhint(reboot-needed) (bsc#1215988).
