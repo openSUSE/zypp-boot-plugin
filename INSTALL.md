@@ -1,4 +1,4 @@
-# Building and installing libeconf
+# Building and installing zypp-boot-plugin
 
 ## Building
 
