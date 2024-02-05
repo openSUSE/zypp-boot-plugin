@@ -5,5 +5,5 @@ if test -f "$ZYPP_BOOT_PLUGIN_REBOOT_FILE"; then
 fi
 
 # kernel initiates kexec
-./boot-plugin <../tests/zypper_dup.protocol
+./boot-plugin <../tests/zypper_dup2.protocol
 grep kexec $ZYPP_BOOT_PLUGIN_REBOOT_FILE
