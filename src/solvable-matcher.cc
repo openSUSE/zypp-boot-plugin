@@ -10,6 +10,7 @@
 #include <string>
 #include <libeconf.h>
 #include <vector>
+#include <map>
 #include <cstdlib>
 #include <regex>
 #include "solvable-matcher.h"
@@ -22,20 +23,39 @@ namespace bp = boost::process;
 bool
 provides( const string dependency, const string package_name)
 {
-    bp::pipe p;
-    bp::ipstream is;
+    static std::map<std::string, std::vector<std::string>> stored_provides;
+    std::map<std::string, std::vector<std::string>>::iterator it;
     bool found = false;
-    bp::child rpm(bp::search_path("rpm"), "-q", "--whatprovides", "--qf", "%{NAME}\\n", dependency, bp::std_out > is);
-    std::string line;
-    
-    while (rpm.running() && std::getline(is, line)) {
-        boost::trim(line);
-	if (boost::equals(line, package_name)) {
-      	    found = true;
-    	    cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " for dependency " << dependency << endl;
+
+    it =  stored_provides.find(dependency);
+    if (it == stored_provides.end()) {
+        bp::pipe p;
+	bp::ipstream is;
+	bp::child rpm(bp::search_path("rpm"), "-q", "--whatprovides", "--qf", "%{NAME}\\n", dependency, bp::std_out > is);
+	std::string line;
+
+	std::vector<std::string> packages;
+	while (rpm.running() && std::getline(is, line)) {
+            boost::trim(line);
+	    if (boost::equals(line, package_name)) {
+		found = true;
+	    }
+	    packages.push_back(line);
+	}
+	stored_provides[dependency] = packages;
+	rpm.wait();
+    } else {
+	std::vector<std::string>::const_iterator i;
+	for (i=((it->second).begin()); i!=((it->second).end()); ++i){
+	    if (boost::equals(*i, package_name)) {
+	        found = true;
+	    }
 	}
     }
-    rpm.wait();
+
+    if (found)
+	cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " for dependency " << dependency << endl;
+
     return found;
 }
 
