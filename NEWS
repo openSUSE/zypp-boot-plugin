@@ -1,3 +1,6 @@
+Version 0.0.7
+* Caching RPM calls for speedup.
+
 Version 0.0.6
 * Using Boost:child for RPM calls instead of unsecure system()
   call (bsc#1215988).
