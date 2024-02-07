@@ -137,7 +137,7 @@ ZyppBootPlugin::boot_to_str(Boot boot)
 set<string>
 ZyppBootPlugin::get_solvables(const Message& msg)
 {
-    cerr << "DEBUG:(boot-plugin):msg.body:" << msg.body << endl;
+    // cerr << "DEBUG:(boot-plugin):msg.body:" << msg.body << endl;
     set<string> result;
 
     json_tokener * tok = json_tokener_new();
