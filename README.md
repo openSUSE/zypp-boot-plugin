@@ -107,4 +107,4 @@ for */run/reboot-needed* where the "strongest" boot process in the list will be 
 
 1. reboot
 2. kexec
-3. soft-boot
+3. soft-reboot
