@@ -17,3 +17,9 @@ test('tst-zypper_dup', find_program(meson.current_source_dir() +'/tst_zypper_dup
 
 test('tst-zypper_dup2', find_program(meson.current_source_dir() +'/tst_zypper_dup2.sh'),
   env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_zypper_dup2.out'])
+
+test('tst-overwrite1', find_program(meson.current_source_dir() +'/tst_overwrite1.sh'),
+  env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_overwrite1.out'])
+
+test('tst-overwrite2', find_program(meson.current_source_dir() +'/tst_overwrite2.sh'),
+  env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_overwrite2.out'])

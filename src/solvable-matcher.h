@@ -8,6 +8,7 @@
 #define SOFTSTR "soft-reboot"
 #define KEXECSTR "kexec"
 #define HARDSTR "reboot"
+#define NONESTR "none"
 
 enum class Boot { NONE, SOFT, KEXEC, HARD };
 
