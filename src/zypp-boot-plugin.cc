@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <set>
-#include <vector>
 #include <map>
 #include <string>
 #include <regex>
@@ -85,11 +84,11 @@ public:
 	ProgramOptions opts;
         Boot bootkind = SolvableMatcher::match_solvables(solvables, opts.plugin_config);
 
-        if (bootkind != Boot::NONE) {
+        if (check_reboot_file(bootkind, opts.reboot_file)) {
            cerr << "INFO:(boot-plugin):" << "Set '" << boot_to_str(bootkind) <<
 		   "' in " << opts.reboot_file << endl;
 	   ofstream outputfile;
-           outputfile.open (opts.reboot_file);
+           outputfile.open(opts.reboot_file);
            outputfile << boot_to_str(bootkind);
            outputfile.close();
 	}
@@ -103,6 +102,7 @@ private:
 
     set<string> get_solvables(const Message&);
     const char* boot_to_str(Boot boot);
+    bool check_reboot_file(Boot boot, string reboot_file);
 };
 
 
@@ -118,6 +118,39 @@ object_get(json_object* obj, const char* name)
     return result;
 }
 
+bool
+ZyppBootPlugin::check_reboot_file(Boot boot, string reboot_file)
+{
+   map<string, int> boot_order = {{NONESTR, 0}, {SOFTSTR, 1}, {KEXECSTR, 2}, {HARDSTR, 3}};
+
+   if (boot == Boot::NONE || boot_order.find(boot_to_str(boot)) == boot_order.end())
+       return false;
+
+   string comp_string = NONESTR;
+   ifstream t(reboot_file);
+   if (t) {
+       getline(t, comp_string);
+       // removing whitespaces
+       comp_string = regex_replace(comp_string, std::regex("^ +| +$|( ) +"), "$1");
+       if (boot_order.find(comp_string) == boot_order.end()) {
+           cerr << "ERROR:(boot-plugin):" << '"' << comp_string << "\" not valid in "
+		<< reboot_file << " -> overwriting it" << endl;
+	   t.close();
+	   return true;
+       }
+   }
+   t.close();
+   if (boot_order[boot_to_str(boot)] <= boot_order[comp_string]) {
+       cerr << "INFO:(boot-plugin):" << reboot_file <<
+	       " is already set to higher or equal prio " <<
+	       comp_string << " (evaluted value: " <<
+	       boot_to_str(boot) << ")" << endl;
+       return false;
+   }
+
+   return true;
+}
+
 const char*
 ZyppBootPlugin::boot_to_str(Boot boot)
 {
@@ -130,7 +163,7 @@ ZyppBootPlugin::boot_to_str(Boot boot)
     case Boot::SOFT:
         return SOFTSTR;
     default:
-        return "NONE";
+        return NONESTR;
     }
 }
 
