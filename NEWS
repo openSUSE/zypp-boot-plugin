@@ -1,3 +1,6 @@
+Version 0.0.8
+* Do not overwrite higher bootlevel in already existing reboot-needed.
+
 Version 0.0.7
 * Caching RPM calls for speedup.
 
