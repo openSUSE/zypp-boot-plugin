@@ -1,3 +1,6 @@
+Version 0.0.9
+* Set reboot flag for multiversion packages ( type "M" ).
+
 Version 0.0.8
 * Do not overwrite higher bootlevel in already existing reboot-needed.
 

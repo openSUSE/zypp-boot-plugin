@@ -200,7 +200,7 @@ ZyppBootPlugin::get_solvables(const Message& msg)
 	        continue;
 	    }
 	    const char * type_c = json_object_get_string(type);
-	    if (strcmp(type_c, "+") != 0) {
+	    if (strcmp(type_c, "+") != 0 && strcmp(type_c, "M") != 0) {
 	        cerr << "DEBUG:(boot-plugin):" << "ignoring type: " << type_c <<" in item #" << i << endl;
 	        continue;
 	    }
