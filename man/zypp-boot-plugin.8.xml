@@ -78,7 +78,17 @@
         <listitem>
           <para>
              Despite the file described above, this file can be edit by the admin and will NOT be overwritten
-             while an package installation/update. These file entries have the higest priority.
+             while a package installation/update. These file entries have the higest priority and replace
+             ALL entries defined in the /usr/etc/zypp/zypp-boot-plugin.conf.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>/etc/zypp/zypp-boot-plugin.conf.d/*</term>
+        <listitem>
+          <para>
+             Allows individual entry changes which have been defined in the configuration files described above.
+             Have a look to https://opensuse.github.io/libeconf/ for more infmormation.
           </para>
         </listitem>
       </varlistentry>

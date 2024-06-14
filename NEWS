@@ -1,3 +1,6 @@
+Version 0.0.10
+* Updated zypp-boot-plugin.conf docu.
+
 Version 0.0.9
 * Set reboot flag for multiversion packages ( type "M" ).
 
