@@ -1,5 +1,5 @@
 project('zypp-boot_plugin', 'cpp',
-	version : '0.0.10',
+	version : '0.0.11',
 	license : 'LGPLv3',
 	default_options : [
 		'buildtype=debugoptimized',
@@ -19,6 +19,7 @@ boot_plugin_src = files(
   'src/solvable-matcher.cc',
   'src/zypp-commit-plugin.cc',
   'src/zypp-plugin.cc',
+  'src/stomp.cc',
 )
 
 libeconf_dep = dependency('libeconf')
