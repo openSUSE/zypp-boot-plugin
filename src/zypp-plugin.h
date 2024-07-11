@@ -2,18 +2,13 @@
 #define ZYPP_PLUGIN_H
 
 #include <iostream>
-#include <map>
-#include <string>
+#include "stomp.h"
 
 class ZyppPlugin {
 public:
     // Plugin message aka frame
     // https://doc.opensuse.org/projects/libzypp/HEAD/zypp-plugins.html
-    struct Message {
-	std::string command;
-	std::map<std::string, std::string> headers;
-	std::string body;
-    };
+    using Message = Stomp::Message;
 
     /// Where the protocol reads from
     std::istream& pin;
@@ -28,7 +23,8 @@ public:
 	, pout(out)
 	, plog(log)
     {}
-    virtual ~ZyppPlugin() {}
+
+    virtual ~ZyppPlugin() = default;
 
     virtual int main();
 
@@ -38,15 +34,10 @@ protected:
     // The base acks a _DISCONNECT and replies _ENOMETHOD to everything else.
     virtual Message dispatch(const Message&);
 
-    Message read_message(std::istream& is);
-    void write_message(std::ostream& os, const Message& msg);
+    Message read_message(std::istream& is) const { return Stomp::read_message(is); }
+    void write_message(std::ostream& os, const Message& msg) const { Stomp::write_message(os, msg); }
 
-    Message ack() {
-	Message a;
-	a.command = "ACK";
-	std::cerr << "INFO:(boot-plugin):" << "RETURNING ACK" << std::endl;
-	return a;
-    }
+    Message ack() const { return Stomp::ack(); }
 };
 
 #endif //ZYPP_PLUGIN_H
