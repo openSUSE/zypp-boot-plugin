@@ -1,3 +1,6 @@
+Version 0.0.12
+* Added selinux-policy and systemd-boot to hard reboot list.
+
 Version 0.0.11
 * Handle content-length of stomp in zypper plugin
 
