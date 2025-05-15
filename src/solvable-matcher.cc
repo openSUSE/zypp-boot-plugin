@@ -3,9 +3,19 @@
 #include <boost/algorithm/string/classification.hpp> // boost::is_any_of
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 108800
 #include <boost/process/child.hpp>
 #include <boost/process/search_path.hpp>
 #include <boost/process/io.hpp>
+#else
+#define BOOST_PROCESS_VERSION 1
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/search_path.hpp>
+#include <boost/process/v1/io.hpp>
+#include <boost/process/v1/pipe.hpp>
+#endif
 
 #include <string>
 #include <libeconf.h>
