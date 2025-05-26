@@ -9,9 +9,6 @@ test('tst-package-name', find_program(meson.current_source_dir() +'/tst_package_
 test('tst-provides', find_program(meson.current_source_dir() +'/tst_provides.sh'),
   env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_provides.out'])
 
-test('tst-kernel', find_program(meson.current_source_dir() +'/tst_kernel.sh'),
-  env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_kernel.out'])
-
 test('tst-multi', find_program(meson.current_source_dir() +'/tst_multi.sh'),
   env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_multi.out'])
 
@@ -26,3 +23,8 @@ test('tst-overwrite1', find_program(meson.current_source_dir() +'/tst_overwrite1
 
 test('tst-overwrite2', find_program(meson.current_source_dir() +'/tst_overwrite2.sh'),
   env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_overwrite2.out'])
+
+if host_machine.cpu() == 'x86_64'
+   test('tst-kernel', find_program(meson.current_source_dir() +'/tst_kernel.sh'),
+     env : ['ZYPP_BOOT_PLUGIN_CONFIG=../tests/zypp-boot-plugin.conf', 'ZYPP_BOOT_PLUGIN_REBOOT_FILE=./tst_kernel.out'])
+endif
