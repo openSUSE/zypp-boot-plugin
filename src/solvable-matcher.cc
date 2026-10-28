@@ -105,6 +105,52 @@ check_installhint( const string boot_level_string, const string package_name)
 }
 
 Boot
+boot_level_from_string( const string boot_level_string )
+{
+    if (boot_level_string == HARDSTR) return Boot::HARD;
+    if (boot_level_string == KEXECSTR) return Boot::KEXEC;
+    if (boot_level_string == SOFTSTR) return Boot::SOFT;
+    return Boot::NONE;
+}
+
+bool
+get_packages_section_value( econf_file *conffiles, const string& package_name, string& value )
+{
+    char *val = NULL;
+    econf_err error = econf_getStringValue(conffiles, "Packages", package_name.c_str(), &val);
+    if (!error && val != NULL) {
+        value = val;
+	free(val);
+	return true;
+    }
+
+    /* Not found by exact package name - the key itself may be a "provides:" capability. */
+    char **keys = NULL;
+    size_t keys_length = 0;
+    econf_err keys_error = econf_getKeys(conffiles, "Packages", &keys_length, &keys);
+    if (keys_error) return false;
+
+    bool found = false;
+    for (size_t i = 0; i < keys_length && !found; i++) {
+        string key(keys[i]);
+	if (!boost::starts_with(key, "provides:")) continue;
+
+	if (provides(key.substr(9), package_name)) {
+	    char *pval = NULL;
+	    econf_err val_error = econf_getStringValue(conffiles, "Packages", keys[i], &pval);
+	    if (!val_error && pval != NULL) {
+	        value = pval;
+		free(pval);
+		found = true;
+	    }
+	}
+    }
+    econf_freeArray(keys);
+
+    return found;
+}
+
+Boot
 check_boot_level( const Boot current_boot_level, const Boot boot_level, const string package_name, econf_file *conffiles )
 {
     /* The function will be called for the same package for boot level "soft", "kexec" and "hard" in that order. */
@@ -131,6 +177,28 @@ check_boot_level( const Boot current_boot_level, const Boot boot_level, const st
 	break;
     default:
         cerr << "WARNING:(boot-plugin): given wrong boot level" << endl;
+	return ret;
+    }
+
+    /* The [Packages] section has a higher priority than [main]. It allows setting the     */
+    /* boot level directly for one specific package, e.g. "grub2 = kexec". The key is      */
+    /* matched either as an exact package name or, like in [main], as a provides           */
+    /* capability tagged with the "provides:" prefix.                                      */
+    /* If such an entry matches this package, it alone decides the boot level for it,      */
+    /* [main] and installhint(reboot-needed) are then not evaluated for it anymore.        */
+    std::string pkg_boot_level_string;
+    if (get_packages_section_value(conffiles, package_name, pkg_boot_level_string)) {
+        boost::trim(pkg_boot_level_string);
+
+	Boot pkg_boot_level = boot_level_from_string(pkg_boot_level_string);
+	if (pkg_boot_level == Boot::NONE) {
+	    cerr << "WARNING:(boot-plugin): unknown boot level '" << pkg_boot_level_string <<
+		    "' for package " << package_name << " in section [Packages]" << endl;
+	} else if (pkg_boot_level == boot_level) {
+	    ret = boot_level;
+	    cerr << "DEBUG:(boot-plugin):  --- Found package " << package_name << " in section [Packages]" << endl;
+	    cerr << "DEBUG:(boot-plugin):      Found for level: " << boot_level_string << endl;
+	}
 	return ret;
     }
 

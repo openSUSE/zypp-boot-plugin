@@ -89,7 +89,30 @@ checks for each package if a reboot is required:
    ##	empty
    ##
    soft-reboot = glibc, dbus-broker, dbus-1-daemon, libopenssl[0-9]?_?[0-9]?_?[0-9]?, libopenssl[0-9]?_?[0-9]?_?[0-9]?-32bit
-   
+
+   [Packages]
+
+   ##
+   ## Alternative way of defining the required boot level, one entry per package.
+   ## The key is matched either as an exact package name or, like in [main], as a
+   ## provides capability tagged with the "provides:" prefix. Regular expressions
+   ## as package name are not supported here.
+   ##
+   ## Entries in this section have a higher priority than the entries in [main]:
+   ## if a package matches an entry here, this boot level is used and the lists in
+   ## [main] as well as installhint(reboot-needed) are not evaluated for it anymore.
+   ##
+   ## Example:
+   ##	grub2 = kexec
+   ##	provides:bootloader = kexec
+   ##
+   ## Valid values:
+   ##	package_or_capability = reboot|kexec|soft-reboot
+   ##
+   ## Default value:
+   ##	empty
+   ##
+
    ```
    Admin/User changes should go into /etc/zypp/zypp-boot-plugin.conf for resetting all entries or should go
    into /etc/zypp/zypp-boot-plugin.conf.d/ for indiviual changes only. Have a look to :https://opensuse.github.io/libeconf/
